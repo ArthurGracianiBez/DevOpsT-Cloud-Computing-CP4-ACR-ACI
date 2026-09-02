@@ -23,15 +23,15 @@ echo "==> 1) Build da imagem do banco (Oracle) a partir do Dockerfile"
 docker build -t "$ORACLE_IMAGE_NAME:$IMAGE_TAG" "$PROJECT_ROOT/docker/oracle-db"
 
 echo "==> 2) Build da imagem da API Java a partir do Dockerfile"
-# Dockerfile fica em docker/java-api/, mas o contexto (COPY . .) é o código-fonte
+# Dockerfile fica em docker/java-api/Astra-Ai-Java/
 # clonado em Astra-Ai-Java/ (onde estão pom.xml, mvnw e src/)
-docker build -f "$PROJECT_ROOT/docker/java-api/Dockerfile" -t "$JAVA_IMAGE_NAME:$IMAGE_TAG" "$JAVA_SRC_DIR"
+docker build -f "$PROJECT_ROOT/docker/java-api/Astra-Ai-Java/Dockerfile" -t "$JAVA_IMAGE_NAME:$IMAGE_TAG" "$JAVA_SRC_DIR"
 
 echo ""
 echo "==> Imagens construídas localmente:"
 docker image ls | grep -E "$ORACLE_IMAGE_NAME|$JAVA_IMAGE_NAME" || true
 
-echo "==> 3) Login no ACR (usa o Azure AD do usuário logado no 'az login', sem senha em texto)"
+echo "==> 3) Login no ACR"
 az acr login --name "$ACR_NAME"
 
 LOGIN_SERVER=$(az acr show --name "$ACR_NAME" --resource-group "$RESOURCE_GROUP" --query loginServer --output tsv)
