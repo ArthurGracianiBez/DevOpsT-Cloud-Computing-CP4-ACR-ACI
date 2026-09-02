@@ -1,0 +1,192 @@
+@baseUrl = http://localhost:8080
+@contentType = application/json
+
+# =================================================================
+# VARIÁVEIS GLOBAIS
+# Altere os IDs conforme necessário para testar diferentes cenários
+# =================================================================
+@sateliteId = 1
+@rectennaId = 1
+@rectennaIdDestino = 2
+
+
+###
+# ============================
+# HEALTH CHECK
+# ============================
+
+### [HEALTH] Verifica a saúde da aplicação
+GET {{baseUrl}}/actuator/health
+Accept: application/json
+
+
+###
+# ============================
+# SATÉLITES (CRUD)
+# ============================
+
+### [SATELITE][CREATE] Cria um novo satélite
+POST {{baseUrl}}/satelites
+Content-Type: {{contentType}}
+
+{
+  "nomeSatelite": "ASTRA-GAMA-03",
+  "statusOperacional": "Ativo",
+  "eficienciaPaineis": 98.50,
+  "capacidadeMaxGw": 25.00
+}
+
+### [SATELITE][READ] Lista todos os satélites (paginado)
+GET {{baseUrl}}/satelites?page=0&size=10&sort=nomeSatelite,asc
+Accept: application/json
+
+### [SATELITE][READ] Filtra satélites por status "Ativo"
+GET {{baseUrl}}/satelites?statusOperacional=Ativo
+Accept: application/json
+
+### [SATELITE][READ] Busca um satélite por ID
+GET {{baseUrl}}/satelites/{{sateliteId}}
+Accept: application/json
+
+### [SATELITE][UPDATE] Atualiza um satélite por ID
+PUT {{baseUrl}}/satelites/{{sateliteId}}
+Content-Type: {{contentType}}
+
+{
+  "nomeSatelite": "ASTRA-GAMA-03-REV2",
+  "statusOperacional": "Manutencao",
+  "eficienciaPaineis": 95.00,
+  "capacidadeMaxGw": 24.50
+}
+
+### [SATELITE][DELETE] Descomissiona um satélite por ID
+DELETE {{baseUrl}}/satelites/{{sateliteId}}
+Accept: application/json
+
+
+###
+# ============================
+# RECTENNAS (CRUD)
+# ============================
+
+### [RECTENNA][CREATE] Cria uma nova rectenna
+POST {{baseUrl}}/rectennas
+Content-Type: {{contentType}}
+
+{
+  "nomeSubestacao": "Rectenna Rio de Janeiro",
+  "latitude": -22.9068,
+  "longitude": -43.1729,
+  "capacidadeSuportadaGwh": 200.00,
+  "statusOperacional": "Ativa"
+}
+
+### [RECTENNA][READ] Lista todas as rectennas ativas (paginado)
+GET {{baseUrl}}/rectennas?page=0&size=10
+Accept: application/json
+
+### [RECTENNA][READ] Busca uma rectenna por ID
+GET {{baseUrl}}/rectennas/{{rectennaId}}
+Accept: application/json
+
+### [RECTENNA][UPDATE] Atualiza uma rectenna por ID
+PUT {{baseUrl}}/rectennas/{{rectennaId}}
+Content-Type: {{contentType}}
+
+{
+  "nomeSubestacao": "Rectenna São Paulo (Centro)",
+  "latitude": -23.5505,
+  "longitude": -46.6333,
+  "capacidadeSuportadaGwh": 250.50,
+  "statusOperacional": "Ativa"
+}
+
+### [RECTENNA][DELETE] Desativa uma rectenna por ID (Soft Delete)
+DELETE {{baseUrl}}/rectennas/{{rectennaId}}
+Accept: application/json
+
+### [RECTENNA][VERIFICACAO] Verifica se a rectenna foi desativada (Status = Inativa)
+GET {{baseUrl}}/rectennas/{{rectennaId}}
+Accept: application/json
+
+###
+# ============================
+# TELEMETRIA (FLUXO PRINCIPAL)
+# ============================
+
+### [TELEMETRIA][CENÁRIO 1] Canal Seguro (Sensor baixo, clima bom)
+# Esperado: Resposta 200 OK com comando "ACENDER" e o ID da rectenna de origem.
+# O histórico de conexão deve ser registrado com status "Transmitindo".
+POST {{baseUrl}}/telemetria/validar-feixe
+Content-Type: {{contentType}}
+
+{
+  "sateliteId": {{sateliteId}},
+  "rectennaId": {{rectennaId}},
+  "leituraSensor": 450
+}
+
+### [TELEMETRIA][CENÁRIO 2] Redirecionamento por Sensor Crítico
+# Esperado: Resposta 200 OK com comando "REDIRECIONAR" e o ID da rectenna mais próxima.
+# O histórico de conexão deve ser registrado com status "Desviado por Clima".
+POST {{baseUrl}}/telemetria/validar-feixe
+Content-Type: {{contentType}}
+
+{
+  "sateliteId": {{sateliteId}},
+  "rectennaId": {{rectennaId}},
+  "leituraSensor": 4000
+}
+
+### [TELEMETRIA][CENÁRIO 3] Redirecionamento por Clima Ruim (simulado)
+# Para testar este cenário, a API externa OpenWeather precisaria retornar um ID de clima severo (ex: 2xx, 503, 504).
+# Esperado: Resposta 200 OK com comando "REDIRECIONAR" e o ID da rectenna mais próxima.
+# O histórico de conexão deve ser registrado com status "Desviado por Clima".
+POST {{baseUrl}}/telemetria/validar-feixe
+Content-Type: {{contentType}}
+
+{
+  "sateliteId": {{sateliteId}},
+  "rectennaId": {{rectennaId}},
+  "leituraSensor": 500
+}
+
+### [TELEMETRIA][ERRO 404] Rectenna não encontrada
+POST {{baseUrl}}/telemetria/validar-feixe
+Content-Type: {{contentType}}
+
+{
+  "sateliteId": {{sateliteId}},
+  "rectennaId": 9999,
+  "leituraSensor": 500
+}
+
+### [TELEMETRIA][ERRO 404] Satélite não encontrado
+POST {{baseUrl}}/telemetria/validar-feixe
+Content-Type: {{contentType}}
+
+{
+  "sateliteId": 9999,
+  "rectennaId": {{rectennaId}},
+  "leituraSensor": 500
+}
+
+### [TELEMETRIA][ERRO 400] Payload inválido (campo nulo)
+POST {{baseUrl}}/telemetria/validar-feixe
+Content-Type: {{contentType}}
+
+{
+  "sateliteId": {{sateliteId}},
+  "rectennaId": null,
+  "leituraSensor": 500
+}
+
+
+###
+# ============================
+# HISTÓRICO (AUDITORIA)
+# ============================
+
+### [HISTORICO][READ] Lista o histórico de desvios (paginado)
+GET {{baseUrl}}/historico-desvios?page=0&size=10&sort=dataHoraManobra,desc
+Accept: application/json

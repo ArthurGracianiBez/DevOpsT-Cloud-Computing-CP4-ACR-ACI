@@ -1,0 +1,24 @@
+# Nunca subir o .env real com credenciais
+.env
+*.env
+!.env.example
+
+# Segredos e chaves
+*.pem
+*.key
+*.pfx
+
+# Build / SO
+target/
+build/
+*.class
+.DS_Store
+Thumbs.db
+
+# IDE
+.idea/
+.vscode/
+*.iml
+
+# Logs
+*.log
