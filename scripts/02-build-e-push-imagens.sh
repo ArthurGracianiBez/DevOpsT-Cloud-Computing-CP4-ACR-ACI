@@ -11,13 +11,6 @@ source "$SCRIPT_DIR/00-check-env.sh"
 PROJECT_ROOT="$SCRIPT_DIR/.."
 JAVA_SRC_DIR="$PROJECT_ROOT/docker/java-api/Astra-Ai-Java"
 
-if [ ! -f "$JAVA_SRC_DIR/pom.xml" ]; then
-  echo "ERRO: não encontrei $JAVA_SRC_DIR/pom.xml"
-  echo "Clone o repositório da API Java dentro de '$JAVA_SRC_DIR' antes de rodar este script"
-  echo "(veja Astra-Ai-Java/CLONE_AQUI.md)."
-  exit 1
-fi
-
 echo "==> 1) Build da imagem do banco (Oracle) a partir do Dockerfile"
 # Contexto = docker/oracle-db (o Dockerfile faz "COPY init.sql ..." relativo a essa pasta)
 docker build -t "$ORACLE_IMAGE_NAME:$IMAGE_TAG" "$PROJECT_ROOT/docker/oracle-db"
