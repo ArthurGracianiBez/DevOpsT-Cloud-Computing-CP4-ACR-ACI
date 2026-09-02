@@ -38,4 +38,4 @@ az container logs --resource-group "$RESOURCE_GROUP" --name "$ACI_ORACLE_NAME"
 
 echo ""
 echo " Para testar via sqlplus dentro do container:"
-echo " az container exec --resource-group $RESOURCE_GROUP --name $ACI_ORACLE_NAME --exec-command \"sqlplus $APP_USER/<senha>@//localhost:1521/$ORACLE_DATABASE\""
+echo " az container exec --resource-group $RESOURCE_GROUP --name $ACI_ORACLE_NAME --exec-command \"sqlplus $APP_USER/$APP_PASSWORD@//localhost:1521/$ORACLE_DATABASE\""
