@@ -16,7 +16,7 @@ az container create \
   --name "$ACI_JAVA_NAME" \
   --image "$ACR_NAME.azurecr.io/$JAVA_IMAGE_NAME:$IMAGE_TAG" \
   --cpu 1 \
-  --memory 1.5 \
+  --memory 2 \
   --os-type Linux \
   --dns-name-label "$ACI_JAVA_DNS_LABEL" \
   --ports 8080 \
