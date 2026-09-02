@@ -57,12 +57,16 @@ persistência em **Azure Storage Account** e segredos no **Azure Key Vault**.
    chmod +x scripts/*.sh
    ```
 
-4. **Crie o Resource Group e o ACR:**
+4. **Carrega as variáveis do .env para o ambiente do terminal** 
+   ```bash
+   ./scripts/00-check-env.sh
+   ```
+5. **Crie o Resource Group e o ACR:**
    ```bash
    ./scripts/01-criar-acr.sh
    ```
 
-5. **Build local das imagens, teste local e push para o ACR:**
+6. **Build local das imagens, teste local e push para o ACR:**
    ```bash
    ./scripts/02-build-e-push-imagens.sh
    ```
@@ -71,27 +75,27 @@ persistência em **Azure Storage Account** e segredos no **Azure Key Vault**.
    - `docker build` da imagem da API Java a partir de `docker/java-api/Astra-Ai-Java`
      (Dockerfile e código-fonte na mesma pasta)
 
-6. **Crie a Storage Account (volume do Oracle):**
+7. **Crie a Storage Account (volume do Oracle):**
    ```bash
    ./scripts/03-storage-account.sh
    ```
 
-7. **Crie o Key Vault e armazene os segredos:**
+8. **Crie o Key Vault e armazene os segredos:**
    ```bash
    ./scripts/04-keyvault.sh
    ```
 
-8. **Suba o container do banco Oracle no ACI:**
+9. **Suba o container do banco Oracle no ACI:**
    ```bash
    ./scripts/05-deploy-oracle-aci.sh
    ```
 
-9. **Suba o container da API Java no ACI:**
+10. **Suba o container da API Java no ACI:**
    ```bash
    ./scripts/06-deploy-java-aci.sh
    ```
 
-10. **Teste os endpoints (evidências em `tests/json/`):**
+11. **Teste os endpoints (evidências em `tests/json/`):**
    ```bash
    JAVA_IP=$(az container show -g rg-astra-hub -n <ACI_JAVA_NAME> --query ipAddress.fqdn -o tsv)
    curl http://$JAVA_IP:8080/rectennas
